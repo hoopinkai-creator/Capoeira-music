@@ -14,6 +14,7 @@ images are rendered for every new/updated variation.
 from __future__ import annotations
 
 import difflib
+import hashlib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -40,9 +41,16 @@ class ClassResult:
     classifier_mode: str = ""
 
 
-def _slug(text: str) -> str:
+def _slug(text: str, max_len: int = 40) -> str:
     keep = [c.lower() if c.isalnum() else "_" for c in text]
-    return "".join(keep).strip("_").replace("__", "_") or "toque"
+    s = "".join(keep).strip("_")
+    while "__" in s:
+        s = s.replace("__", "_")
+    return (s[:max_len].strip("_") or "toque")
+
+
+def _seq_hash(sequence: list[str]) -> str:
+    return hashlib.sha1("|".join(sequence).encode()).hexdigest()[:8]
 
 
 def _best_toque_match(sequence: list[str], course: Course) -> tuple[str | None, float]:
@@ -168,7 +176,7 @@ def process_class(cfg: Config, course: Course, rec: ClassRecording) -> ClassResu
             result.sequences_duplicate += 1
             continue
         result.sequences_added += 1
-        png = cfg.notation_dir / f"{_slug(name)}_{_slug('_'.join(seq))}.png"
+        png = cfg.notation_dir / f"{_slug(name)}_{_seq_hash(seq)}.png"
         svg = png.with_suffix(".svg")
         render_sequence(
             seq, svg, title=name, syllables=syllables_for(seq),

@@ -11,6 +11,7 @@ upgrade can POST this same payload to the Canva Connect REST API.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -22,9 +23,16 @@ from .notation import syllables_for
 from .render import render_sequence
 
 
-def _slug(text: str) -> str:
+def _slug(text: str, max_len: int = 40) -> str:
     keep = [c.lower() if c.isalnum() else "_" for c in text]
-    return "".join(keep).strip("_").replace("__", "_") or "toque"
+    s = "".join(keep).strip("_")
+    while "__" in s:
+        s = s.replace("__", "_")
+    return (s[:max_len].strip("_") or "toque")
+
+
+def _seq_hash(sequence: list[str]) -> str:
+    return hashlib.sha1("|".join(sequence).encode()).hexdigest()[:8]
 
 
 def _rel_to_root(path: Path, root: Path) -> str:
@@ -42,7 +50,7 @@ def ensure_notation_images(cfg: Config, course: Course) -> int:
             if var.notation_png:
                 png = cfg.root / var.notation_png
             else:
-                png = cfg.notation_dir / f"{_slug(toque.name)}_{_slug('_'.join(var.sequence))}.png"
+                png = cfg.notation_dir / f"{_slug(toque.name)}_{_seq_hash(var.sequence)}.png"
             svg = png.with_suffix(".svg")
             if not svg.exists() or (have("cairosvg") and not png.exists()):
                 render_sequence(
