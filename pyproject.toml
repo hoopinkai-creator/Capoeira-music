@@ -33,8 +33,11 @@ render = [
     "svgwrite>=1.4",
     "cairosvg>=2.7",
 ]
+web = [
+    "flask>=3.0",
+]
 all = [
-    "capoeira-music[audio,speech,ai,render]",
+    "capoeira-music[audio,speech,ai,render,web]",
 ]
 dev = [
     "pytest>=7.4",

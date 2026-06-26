@@ -110,6 +110,18 @@ def canva_sync(cfg: Config) -> None:
     click.echo("Next: hand this payload to the Canva integration to create/update the design.")
 
 
+@cli.command()
+@click.option("--host", default="0.0.0.0", help="Bind address")
+@click.option("--port", default=8000, type=int, help="Port")
+@click.pass_context
+def serve(ctx: click.Context, host: str, port: int) -> None:
+    """Serve the living-course web UI on http://localhost:<port>."""
+    from .webapp import serve as _serve
+
+    click.echo(f"Serving Capoeira course UI on http://localhost:{port}  (Ctrl-C to stop)")
+    _serve(host=host, port=port, config_path=ctx.parent.params.get("config_path"))
+
+
 @cli.group()
 def calibrate() -> None:
     """Label real strikes and train the rhythm classifier."""
