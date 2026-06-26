@@ -159,6 +159,47 @@ def calibrate_label(cfg: Config) -> None:
     click.echo(f"\nLabeled {n} clip(s). Run 'capoeira calibrate train' next.")
 
 
+@calibrate.command("cluster")
+@click.argument("class_id")
+@click.option("-k", "n_clusters", default=3, type=int, help="Number of sound clusters")
+@click.pass_obj
+def calibrate_cluster(cfg: Config, class_id: str, n_clusters: int) -> None:
+    """Group a class's strikes into K sounds and export one audio sample per cluster."""
+    from .calibrate import cluster_strikes
+    from .ingest import discover_classes
+
+    rec = next((c for c in discover_classes(cfg.recordings_dir) if c.class_id == class_id), None)
+    if rec is None:
+        click.echo(f"No class folder named {class_id} under {cfg.recordings_dir}/")
+        return
+    reps = cluster_strikes(cfg, rec, k=n_clusters)
+    for r in reps:
+        click.echo(f"  cluster {r['cluster']}: {r['size']} strikes  ->  {r['wav']}")
+    click.echo("\nListen to each sample, then label them, e.g.:")
+    click.echo(f"  capoeira calibrate label-clusters {class_id} 0=chi 1=tom 2=tim")
+
+
+@calibrate.command("label-clusters")
+@click.argument("class_id")
+@click.argument("labels", nargs=-1)  # e.g. 0=chi 1=tom 2=tim
+@click.pass_obj
+def calibrate_label_clusters(cfg: Config, class_id: str, labels: tuple[str, ...]) -> None:
+    """Assign chi/tom/tim to clusters and train the classifier from them."""
+    from .calibrate import train_from_cluster_labels
+
+    mapping: dict[int, str] = {}
+    for pair in labels:
+        if "=" not in pair:
+            click.echo(f"Bad label '{pair}', expected like 0=chi"); return
+        idx, lab = pair.split("=", 1)
+        mapping[int(idx)] = lab.strip().lower()
+    report = train_from_cluster_labels(cfg, class_id, mapping)
+    if not report.get("trained"):
+        click.echo(f"Not trained: {report.get('reason')}"); return
+    click.echo(f"Trained on {report['n']} strikes {report['by_label']}")
+    click.echo(f"Saved model: {report['model']}.  Now run: capoeira process {class_id}")
+
+
 @calibrate.command("train")
 @click.pass_obj
 def calibrate_train(cfg: Config) -> None:
