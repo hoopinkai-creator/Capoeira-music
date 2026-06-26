@@ -76,6 +76,17 @@ class Course:
         self._write_toques(toques)
         return result
 
+    def set_variation_png(self, toque_name: str, sequence: list[str], png_path: str) -> bool:
+        """Record the notation image path on the matching stored variation."""
+        for toque in self.data["toques"]:
+            if toque.get("name", "").lower() != toque_name.lower():
+                continue
+            for var in toque.get("variations", []):
+                if list(var.get("sequence", [])) == list(sequence):
+                    var["notation_png"] = png_path
+                    return True
+        return False
+
     # --- idempotency ------------------------------------------------------
     def is_processed(self, file_hash: str) -> bool:
         return any(p.get("hash") == file_hash for p in self.data["processed_files"])

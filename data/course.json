@@ -2,11 +2,31 @@
   "version": 1,
   "title": "Capoeira Music — Living Course",
   "notation_key": {
-    "X": {"name": "chidao", "syllable": "chi", "sound": "buzz / scratch (dobrao lightly on string)"},
-    "▽": {"name": "salto", "syllable": "tom", "sound": "open low tone (string open)"},
-    "△": {"name": "preso", "syllable": "tim", "sound": "pressed high tone (dobrao pressed)"},
-    "▽ˣ": {"name": "hammeron", "syllable": "tom", "sound": "accented strike"},
-    "▲": {"name": "preso (strong)", "syllable": "tim", "sound": "emphasized pressed high tone"}
+    "X": {
+      "name": "chidao",
+      "syllable": "chi",
+      "sound": "buzz / scratch (dobrao lightly on string)"
+    },
+    "▽": {
+      "name": "salto",
+      "syllable": "tom",
+      "sound": "open low tone (string open)"
+    },
+    "△": {
+      "name": "preso",
+      "syllable": "tim",
+      "sound": "pressed high tone (dobrao pressed)"
+    },
+    "▽ˣ": {
+      "name": "hammeron",
+      "syllable": "tom",
+      "sound": "accented strike"
+    },
+    "▲": {
+      "name": "preso (strong)",
+      "syllable": "tim",
+      "sound": "emphasized pressed high tone"
+    }
   },
   "processed_files": [],
   "toques": [
@@ -15,7 +35,12 @@
       "category": "angola",
       "variations": [
         {
-          "sequence": ["X", "X", "▽", "△"],
+          "sequence": [
+            "X",
+            "X",
+            "▽",
+            "△"
+          ],
           "syllables": "chi chi tom tim",
           "notation_png": "output/notation/angola.png",
           "first_seen": "seed",
@@ -29,7 +54,12 @@
       "category": "medio",
       "variations": [
         {
-          "sequence": ["X", "X", "▲", "▽"],
+          "sequence": [
+            "X",
+            "X",
+            "▲",
+            "▽"
+          ],
           "syllables": "chi chi tim tom",
           "notation_png": "output/notation/sao_bento_pequeno.png",
           "first_seen": "seed",
@@ -43,7 +73,13 @@
       "category": "angola",
       "variations": [
         {
-          "sequence": ["X", "X", "▽", "△", "△"],
+          "sequence": [
+            "X",
+            "X",
+            "▽",
+            "△",
+            "△"
+          ],
           "syllables": "chi chi tom tim tim",
           "notation_png": "output/notation/angola_do_brada.png",
           "first_seen": "seed",
@@ -54,33 +90,132 @@
     }
   ],
   "glossary": [
-    {"term": "berimbau", "english": "the single-string musical bow that leads capoeira music", "context": "lead instrument", "first_seen": "seed"},
-    {"term": "gunga", "english": "the largest, lowest-pitched berimbau; keeps the base rhythm (also written 'ganga')", "context": "berimbau type", "first_seen": "seed"},
-    {"term": "medio", "english": "the medium-pitched berimbau; plays the counter-rhythm", "context": "berimbau type", "first_seen": "seed"},
-    {"term": "viola", "english": "the smallest, highest-pitched berimbau; improvises", "context": "berimbau type", "first_seen": "seed"},
-    {"term": "toque", "english": "literally 'touch/strike'; a berimbau rhythm pattern", "context": "rhythm", "first_seen": "seed"},
-    {"term": "salto", "english": "'jump/leap'; the open low tone (notation down-triangle, syllable 'tom')", "context": "berimbau sound", "first_seen": "seed"},
-    {"term": "chidao", "english": "the buzzed/scratched sound made when the dobrao rests lightly on the string (notation X, syllable 'chi')", "context": "berimbau sound", "first_seen": "seed"},
-    {"term": "preso", "english": "'pressed/held'; the high tone made by pressing the dobrao against the string (notation up-triangle, syllable 'tim')", "context": "berimbau sound", "first_seen": "seed"},
-    {"term": "dobrao", "english": "the coin or stone pressed against the berimbau string to change pitch", "context": "equipment", "first_seen": "seed"},
-    {"term": "caxixi", "english": "the woven rattle held together with the playing stick", "context": "equipment", "first_seen": "seed"},
-    {"term": "Angola", "english": "a slower, lower style of capoeira, and its berimbau toque", "context": "style / toque", "first_seen": "seed"},
-    {"term": "Sao Bento Pequeno", "english": "'Little Saint Benedict'; a medio toque", "context": "toque", "first_seen": "seed"},
-    {"term": "Sao Bento Grande", "english": "'Big Saint Benedict'; a faster toque", "context": "toque", "first_seen": "seed"},
-    {"term": "angolinha", "english": "'little Angola'; a variation toque related to Angola do brada", "context": "toque", "first_seen": "seed"},
-    {"term": "ganga", "english": "the gunga's base-rhythm role that the other berimbaus play off of", "context": "role", "first_seen": "seed"}
+    {
+      "term": "berimbau",
+      "english": "the single-string musical bow that leads capoeira music",
+      "context": "lead instrument",
+      "first_seen": "seed"
+    },
+    {
+      "term": "gunga",
+      "english": "the largest, lowest-pitched berimbau; keeps the base rhythm (also written 'ganga')",
+      "context": "berimbau type",
+      "first_seen": "seed"
+    },
+    {
+      "term": "medio",
+      "english": "the medium-pitched berimbau; plays the counter-rhythm",
+      "context": "berimbau type",
+      "first_seen": "seed"
+    },
+    {
+      "term": "viola",
+      "english": "the smallest, highest-pitched berimbau; improvises",
+      "context": "berimbau type",
+      "first_seen": "seed"
+    },
+    {
+      "term": "toque",
+      "english": "literally 'touch/strike'; a berimbau rhythm pattern",
+      "context": "rhythm",
+      "first_seen": "seed"
+    },
+    {
+      "term": "salto",
+      "english": "'jump/leap'; the open low tone (notation down-triangle, syllable 'tom')",
+      "context": "berimbau sound",
+      "first_seen": "seed"
+    },
+    {
+      "term": "chidao",
+      "english": "the buzzed/scratched sound made when the dobrao rests lightly on the string (notation X, syllable 'chi')",
+      "context": "berimbau sound",
+      "first_seen": "seed"
+    },
+    {
+      "term": "preso",
+      "english": "'pressed/held'; the high tone made by pressing the dobrao against the string (notation up-triangle, syllable 'tim')",
+      "context": "berimbau sound",
+      "first_seen": "seed"
+    },
+    {
+      "term": "dobrao",
+      "english": "the coin or stone pressed against the berimbau string to change pitch",
+      "context": "equipment",
+      "first_seen": "seed"
+    },
+    {
+      "term": "caxixi",
+      "english": "the woven rattle held together with the playing stick",
+      "context": "equipment",
+      "first_seen": "seed"
+    },
+    {
+      "term": "Angola",
+      "english": "a slower, lower style of capoeira, and its berimbau toque",
+      "context": "style / toque",
+      "first_seen": "seed"
+    },
+    {
+      "term": "Sao Bento Pequeno",
+      "english": "'Little Saint Benedict'; a medio toque",
+      "context": "toque",
+      "first_seen": "seed"
+    },
+    {
+      "term": "Sao Bento Grande",
+      "english": "'Big Saint Benedict'; a faster toque",
+      "context": "toque",
+      "first_seen": "seed"
+    },
+    {
+      "term": "angolinha",
+      "english": "'little Angola'; a variation toque related to Angola do brada",
+      "context": "toque",
+      "first_seen": "seed"
+    },
+    {
+      "term": "ganga",
+      "english": "the gunga's base-rhythm role that the other berimbaus play off of",
+      "context": "role",
+      "first_seen": "seed"
+    }
   ],
   "instructions": [
-    {"text": "Cue the berimbau to your voice (sing the rhythm, then match the bow to it).", "class_date": "seed"},
-    {"text": "Use do-re-mi-fa-si as a guide and pull the string with a finger to shift the tone.", "class_date": "seed"},
-    {"text": "Start with the gunga, then layer the medio and viola off of its ganga.", "class_date": "seed"},
-    {"text": "Pick the mestre's register that is easy for you to sing along with.", "class_date": "seed"},
-    {"text": "gunga's up-triangle (tim) equals the medio's salto (tom) in pitch terms.", "class_date": "seed"}
+    {
+      "text": "Cue the berimbau to your voice (sing the rhythm, then match the bow to it).",
+      "class_date": "seed"
+    },
+    {
+      "text": "Use do-re-mi-fa-si as a guide and pull the string with a finger to shift the tone.",
+      "class_date": "seed"
+    },
+    {
+      "text": "Start with the gunga, then layer the medio and viola off of its ganga.",
+      "class_date": "seed"
+    },
+    {
+      "text": "Pick the mestre's register that is easy for you to sing along with.",
+      "class_date": "seed"
+    },
+    {
+      "text": "gunga's up-triangle (tim) equals the medio's salto (tom) in pitch terms.",
+      "class_date": "seed"
+    }
   ],
   "culture": [
-    {"text": "The berimbau leads the roda: the gunga sets the base, the medio answers, and the viola improvises on top.", "class_date": "seed"},
-    {"text": "Angola is the older, slower, closer-to-the-ground style; its toques (Angola, Angola do brada, angolinha) carry that feel.", "class_date": "seed"}
+    {
+      "text": "The berimbau leads the roda: the gunga sets the base, the medio answers, and the viola improvises on top.",
+      "class_date": "seed"
+    },
+    {
+      "text": "Angola is the older, slower, closer-to-the-ground style; its toques (Angola, Angola do brada, angolinha) carry that feel.",
+      "class_date": "seed"
+    }
   ],
   "classes": [],
-  "canva": {"design_id": null, "last_synced": null}
+  "canva": {
+    "design_id": null,
+    "last_synced": null
+  }
 }
