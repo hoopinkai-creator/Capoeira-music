@@ -32,7 +32,32 @@ Seed rhythms (from the original class notes):
 - **São Bento Pequeno** — `X X ▲ ▽` — *chi chi tim tom*
 - **Angola do brada** — `X X ▽ △ △` — *chi chi tom tim tim*
 
-## Install
+## Where this runs
+
+The iPhone is the **recording device**, not the processing machine. The pipeline
+depends on ffmpeg plus compiled scientific/ML libraries (librosa, scikit-learn,
+faster-whisper, cairosvg) that **do not run on iOS directly**. So:
+
+- **Record** on the phone (Voice Memos) and share the files into a class folder.
+- **Process** on a computer (macOS/Linux/Windows) or a cloud Linux environment.
+
+If you use the Claude Code app, the `capoeira` commands run in a remote Linux
+container (not on the phone itself), which *can* run the full stack — see
+"Running without a computer" below.
+
+## Quick start
+
+```bash
+git clone <repo> && cd Capoeira-music
+git checkout claude/capoeira-notation-system-nc2q7a
+./setup.sh            # installs ffmpeg (if possible), creates a venv, installs
+                      # all extras, and prints an environment check
+```
+
+In every new terminal, activate the environment first: `source .venv/bin/activate`.
+Use `./setup.sh --core` to skip the heavy audio/speech/AI extras.
+
+## Install (manual)
 
 The pure-Python core (notation, course, rendering) needs almost nothing. Audio,
 speech, and AI features are optional extras.
@@ -58,6 +83,21 @@ Check what's available any time:
 ```bash
 capoeira status
 ```
+
+## Running without a computer
+
+If you don't have a Mac/PC, process recordings in a cloud Linux environment:
+
+- **GitHub Codespaces** (from this repo) — open a codespace, run `./setup.sh`.
+- A small **Linux VM** (any cloud provider) or **Google Colab**.
+- The **Claude Code remote environment** — the `capoeira` commands you run from
+  the app execute in a Linux container, so `./setup.sh` works there too. Note it
+  is **ephemeral** (resets between sessions), so commit `data/course.json` after
+  each class to keep your progress.
+
+Running the heavy ML stack *directly on iOS* (a-Shell / iSH) is not supported:
+ffmpeg can be installed there, but faster-whisper and scikit-learn effectively
+cannot.
 
 ## Recording layout — one folder per class
 
