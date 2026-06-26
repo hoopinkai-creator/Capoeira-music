@@ -88,7 +88,12 @@ capoeira status
 
 If you don't have a Mac/PC, process recordings in a cloud Linux environment:
 
-- **GitHub Codespaces** (from this repo) — open a codespace, run `./setup.sh`.
+- **GitHub Codespaces (one click)** — open a Codespace on this repo and the
+  included `.devcontainer` provisions everything automatically (ffmpeg + all
+  extras); when it finishes you can run `capoeira process` straight away, no
+  activation needed. To enable AI translation, add an `ANTHROPIC_API_KEY` secret
+  under **GitHub → Settings → Codespaces → Secrets** (without it the offline
+  glossary dictionary is used).
 - A small **Linux VM** (any cloud provider) or **Google Colab**.
 - The **Claude Code remote environment** — the `capoeira` commands you run from
   the app execute in a Linux container, so `./setup.sh` works there too. Note it
