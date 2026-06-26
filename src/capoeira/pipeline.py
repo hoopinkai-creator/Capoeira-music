@@ -147,7 +147,15 @@ def process_class(cfg: Config, course: Course, rec: ClassRecording) -> ClassResu
         result.warnings.append("librosa not installed: skipping rhythm detection")
 
     # --- SPEECH track ---------------------------------------------------
-    transcript = _speech(cfg, memo_wavs) if memo_wavs else None
+    # Transcription can fail if the Whisper model can't be fetched (e.g. an
+    # egress policy blocks Hugging Face). Degrade gracefully: keep the audio
+    # results, skip the spoken layer, and record why.
+    transcript = None
+    if memo_wavs:
+        try:
+            transcript = _speech(cfg, memo_wavs)
+        except Exception as exc:  # noqa: BLE001 - report, don't crash the run
+            result.warnings.append(f"speech transcription unavailable: {exc}")
     transcript_text = transcript.text if transcript else ""
 
     # --- attach sequences to toques + render ----------------------------
