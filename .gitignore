@@ -1,0 +1,35 @@
+# Audio recordings & derived audio (keep the repo light; these are personal class recordings).
+# Layout is one folder per class: recordings/<class>/<memo>.m4a (multiple memos allowed).
+recordings/**/*.m4a
+recordings/**/*.mp3
+recordings/**/*.wav
+recordings/**/*.aac
+recordings/**/*.caf
+recordings/**/*.mp4
+recordings/**/*.m4v
+**/*.wav
+
+# Trained models & labeled calibration clips
+data/models/*.pkl
+data/calibration/*.wav
+data/calibration/*.npy
+
+# Generated output (notation PNGs are reproducible from course.json)
+output/notation/*.png
+output/canva_payload.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

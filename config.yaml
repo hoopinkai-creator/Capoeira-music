@@ -1,0 +1,47 @@
+# Capoeira Music pipeline configuration.
+# All paths are relative to the project root unless absolute.
+
+paths:
+  recordings: recordings        # drop iPhone Voice Memo exports here (.m4a/.mp3/.wav)
+  course_json: data/course.json # the living knowledge base (source of truth)
+  calibration: data/calibration # labeled strike clips for classifier training
+  model: data/models/strike_clf.pkl
+  output: output                # rendered notation + canva payload
+  notation: output/notation     # generated SVG/PNG per toque variation
+
+audio:
+  sample_rate: 16000            # mono wav target for analysis
+  onset:
+    # librosa onset detection tuning. delta/wait govern sensitivity.
+    delta: 0.06
+    wait: 2                     # frames to wait before allowing the next onset
+    pre_max: 3
+    post_max: 3
+  # A gap (seconds) between consecutive strikes longer than this starts a new
+  # phrase / sequence boundary (used to detect "play the whole toque again").
+  phrase_gap_seconds: 1.2
+  # Window (seconds) sliced around each onset for feature extraction.
+  strike_window_seconds: 0.25
+
+classifier:
+  # Heuristic thresholds used to bootstrap before any labeled data exists.
+  # These operate on normalized per-strike features (see features.py).
+  heuristic:
+    buzz_zcr_threshold: 0.18    # high zero-crossing rate => chi (buzz / X)
+    pitch_split_hz: 320.0       # below => tom (open low / down-triangle),
+                                # above => tim (pressed high / up-triangle)
+    accent_rms_percentile: 85   # strikes louder than this percentile => accent
+
+speech:
+  whisper_model: small          # faster-whisper model size (tiny/base/small/medium)
+  languages: [pt, en]           # auto-detect among these
+
+ai:
+  # Anthropic model used for translation + transcript structuring.
+  model: claude-opus-4-8
+  # Set ANTHROPIC_API_KEY in the environment to enable AI features.
+
+canva:
+  # Populated automatically after the first design is created so updates target
+  # the same living document.
+  design_id: null
