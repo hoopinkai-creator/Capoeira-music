@@ -22,13 +22,24 @@ except ModuleNotFoundError:  # pragma: no cover - yaml is a core dependency
 from .api import DEFAULT_API_VERSION
 
 _DEFAULTS: dict[str, Any] = {
-    "post_url": None,
-    "media_id": None,          # set to skip the media lookup entirely
+    # --- what to target (pick one) --------------------------------------------
+    "post_url": None,          # a single reel/post URL
+    "posts": None,             # or a list of reel/post URLs
+    "auto_discover": False,    # or every post on the account
+    "max_posts": None,         # cap for auto_discover (None = all)
+    "media_id": None,          # or a raw media id (skips the lookup)
+    # --- api ------------------------------------------------------------------
     "graph_api_version": DEFAULT_API_VERSION,
+    # --- default reply (used when no keyword rule matches) --------------------
     "reply_mode": "template",  # "template" | "ai"
     "reply_template": "Axé! 🙏 Obrigado pelo comentário, @{name}!",
     "ai_model": "claude-opus-4-8",
     "ai_system_prompt": None,  # override the default AI persona if you like
+    # --- ManyChat-style keyword rules -----------------------------------------
+    "rules": [],               # list of {keywords, reply, dm?, name?, match?}
+    "only_rules": False,       # True = ignore comments that match no rule
+    "send_dm": True,           # send a rule's DM (needs instagram_manage_messages)
+    # --- bookkeeping ----------------------------------------------------------
     "state_file": "instagram_replies.json",
     "skip_own_comments": True,
 }

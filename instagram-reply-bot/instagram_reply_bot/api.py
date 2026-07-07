@@ -93,6 +93,15 @@ class GraphClient:
         body = urllib.parse.urlencode(payload).encode()
         return self._read(urllib.request.Request(self._url(path), data=body, method="POST"))
 
+    def post_json(self, path: str, data: dict[str, Any]) -> dict[str, Any]:
+        """POST a JSON body (used by the messaging endpoint for private replies)."""
+        url = self._url(path) + "?" + urllib.parse.urlencode({"access_token": self.token})
+        body = json.dumps(data).encode()
+        req = urllib.request.Request(
+            url, data=body, method="POST", headers={"Content-Type": "application/json"}
+        )
+        return self._read(req)
+
     def _read(self, req: urllib.request.Request) -> dict[str, Any]:
         try:
             with self._opener(req) as resp:
@@ -129,6 +138,27 @@ def find_media_id(client: GraphClient, user_id: str, shortcode: str) -> str | No
         params = {**params, "after": after}
 
 
+def list_media(client: GraphClient, user_id: str, limit: int | None = None) -> list[dict[str, Any]]:
+    """List the account's media (id, permalink, caption, media_type), newest first.
+
+    Follows pagination up to ``limit`` items (or all media when limit is None).
+    Used for account-wide "reply across every post" mode.
+    """
+    media: list[dict[str, Any]] = []
+    path = f"{user_id}/media"
+    params = {"fields": "id,permalink,caption,media_type,timestamp", "limit": "50"}
+    while True:
+        page = client.get(path, params)
+        for item in page.get("data", []):
+            media.append(item)
+            if limit is not None and len(media) >= limit:
+                return media
+        after = page.get("paging", {}).get("cursors", {}).get("after")
+        if not after:
+            return media
+        params = {**params, "after": after}
+
+
 def list_comments(client: GraphClient, media_id: str) -> list[Comment]:
     """Return all top-level comments on a media, following pagination."""
     comments: list[Comment] = []
@@ -145,6 +175,22 @@ def list_comments(client: GraphClient, media_id: str) -> list[Comment]:
 
 
 def reply_to_comment(client: GraphClient, comment_id: str, message: str) -> str:
-    """Post a reply to a comment; return the new reply's id."""
+    """Post a public reply to a comment; return the new reply's id."""
     resp = client.post(f"{comment_id}/replies", {"message": message})
     return resp.get("id", "")
+
+
+def send_private_reply(
+    client: GraphClient, ig_user_id: str, comment_id: str, message: str
+) -> str:
+    """Send a **private reply** (DM) in response to a comment — ManyChat-style.
+
+    Uses the Instagram Messaging API: a one-time DM tied to the comment. Requires
+    the ``instagram_manage_messages`` permission and must be sent within 7 days of
+    the comment. Returns the message/recipient id from the response.
+    """
+    resp = client.post_json(
+        f"{ig_user_id}/messages",
+        {"recipient": {"comment_id": comment_id}, "message": {"text": message}},
+    )
+    return resp.get("message_id") or resp.get("recipient_id", "")

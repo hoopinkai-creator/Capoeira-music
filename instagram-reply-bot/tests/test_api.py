@@ -9,7 +9,9 @@ from instagram_reply_bot.api import (
     GraphClient,
     find_media_id,
     list_comments,
+    list_media,
     reply_to_comment,
+    send_private_reply,
     shortcode_from_url,
 )
 
@@ -101,3 +103,27 @@ def test_reply_posts_message_and_returns_id():
     posted = opener.requests[0]
     assert posted.method == "POST"
     assert b"message=" in posted.data
+
+
+def test_list_media_respects_limit_across_pages():
+    responses = [
+        {
+            "data": [{"id": "1", "permalink": "p1"}, {"id": "2", "permalink": "p2"}],
+            "paging": {"cursors": {"after": "NEXT"}},
+        },
+        {"data": [{"id": "3", "permalink": "p3"}]},
+    ]
+    client, _ = _client(responses)
+    media = list_media(client, "USER", limit=3)
+    assert [m["id"] for m in media] == ["1", "2", "3"]
+
+
+def test_send_private_reply_posts_json_body():
+    client, opener = _client([{"message_id": "dm-1"}])
+    assert send_private_reply(client, "USER", "c1", "Prices: R$120") == "dm-1"
+    req = opener.requests[0]
+    assert req.method == "POST"
+    assert req.get_header("Content-type") == "application/json"
+    payload = json.loads(req.data.decode())
+    assert payload["recipient"] == {"comment_id": "c1"}
+    assert payload["message"] == {"text": "Prices: R$120"}

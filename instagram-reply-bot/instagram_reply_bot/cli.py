@@ -16,8 +16,8 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .api import GraphClient, find_media_id, list_comments, shortcode_from_url
-from .bot import run
+from .api import GraphClient, list_comments
+from .bot import resolve_targets, run
 from .config import Config
 
 
@@ -38,51 +38,53 @@ def _cmd_check(cfg: Config) -> int:
         return 1
     token, user_id = cfg.require_credentials()
     client = GraphClient(token, api_version=cfg.get("graph_api_version"))
-    media_id = cfg.get("media_id")
-    if not media_id:
-        post_url = cfg.get("post_url")
-        if not post_url:
-            print("✗ No 'post_url' or 'media_id' in config.", file=sys.stderr)
-            return 1
-        media_id = find_media_id(client, user_id, shortcode_from_url(post_url))
-    if not media_id:
-        print("✗ Credentials OK, but the post was not found on this account.", file=sys.stderr)
+    targets = resolve_targets(cfg, client, user_id)
+    if not targets:
+        print("✗ Credentials OK, but no target post was found on this account.", file=sys.stderr)
         return 1
-    print(f"✓ Credentials OK. Account {user_id} owns media {media_id}.")
+    print(f"✓ Credentials OK. Account {user_id} — {len(targets)} target post(s):")
+    for t in targets:
+        print(f"    {t.media_id}  {t.label}")
     return 0
 
 
 def _cmd_comments(cfg: Config) -> int:
     token, user_id = cfg.require_credentials()
     client = GraphClient(token, api_version=cfg.get("graph_api_version"))
-    media_id = cfg.get("media_id") or find_media_id(
-        client, user_id, shortcode_from_url(cfg.get("post_url"))
-    )
-    if not media_id:
-        print("✗ Post not found on this account.", file=sys.stderr)
+    targets = resolve_targets(cfg, client, user_id)
+    if not targets:
+        print("✗ No target post found on this account.", file=sys.stderr)
         return 1
-    comments = list_comments(client, media_id)
-    print(f"{len(comments)} comment(s) on media {media_id}:")
-    for c in comments:
-        print(f"  [{c.timestamp}] @{c.username}: {c.text}")
+    total = 0
+    for t in targets:
+        comments = list_comments(client, t.media_id)
+        total += len(comments)
+        print(f"{len(comments)} comment(s) on media {t.media_id}  {t.label}:")
+        for c in comments:
+            print(f"    [{c.timestamp}] @{c.username}: {c.text}")
+    print(f"\n{total} comment(s) across {len(targets)} post(s).")
     return 0
 
 
 def _cmd_reply(cfg: Config, send: bool, limit: int | None) -> int:
     result = run(cfg, dry_run=not send, limit=limit)
     mode = "SENT" if send else "DRY RUN (nothing posted; pass --send to post)"
-    print(f"{mode} — media {result.media_id}, {result.total_comments} comment(s)")
+    print(f"{mode} — {len(result.targets)} post(s), {result.total_comments} comment(s)")
     if not result.actions:
-        print("  Nothing to do — all comments already answered.")
+        print("  Nothing to do — all comments already answered (or no rule matched).")
         return 0
     for a in result.actions:
         status = "sent" if a.sent else ("ERROR" if a.error else "would send")
+        tag = f" [rule:{a.plan.rule_name or 'match'}]" if a.plan.matched else ""
         print(f"  @{a.comment.username}: {a.comment.text}")
-        print(f"      -> [{status}] {a.reply}")
+        print(f"      -> [{status}]{tag} {a.reply}")
+        if a.plan.dm:
+            dm_status = "sent" if a.dm_sent else ("ERROR" if a.error else "would send")
+            print(f"      DM [{dm_status}]: {a.plan.dm}")
         if a.error:
             print(f"         {a.error}")
     if send:
-        print(f"\nPosted {result.sent_count} repl(y/ies).")
+        print(f"\nPosted {result.sent_count} repl(y/ies), {result.dm_count} DM(s).")
     return 0
 
 

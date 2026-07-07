@@ -45,6 +45,7 @@ class ScriptedClient(GraphClient):
         self._media = list(media_pages)
         self._comments = list(comment_pages)
         self.posted = []
+        self.dms = []
 
     def get(self, path, params=None):
         if "/media" in path:
@@ -56,6 +57,10 @@ class ScriptedClient(GraphClient):
     def post(self, path, data):
         self.posted.append((path, data["message"]))
         return {"id": f"reply-{len(self.posted)}"}
+
+    def post_json(self, path, data):
+        self.dms.append((path, data["message"]["text"]))
+        return {"message_id": f"dm-{len(self.dms)}"}
 
 
 def _client():
@@ -119,3 +124,43 @@ def test_run_without_credentials_raises(tmp_path, monkeypatch):
     monkeypatch.delenv("INSTAGRAM_USER_ID", raising=False)
     with pytest.raises(RuntimeError):
         run(_cfg(tmp_path), dry_run=True, client=_client())
+
+
+def test_run_applies_rule_and_sends_dm(tmp_path, monkeypatch):
+    monkeypatch.setenv("INSTAGRAM_ACCESS_TOKEN", "T")
+    monkeypatch.setenv("INSTAGRAM_USER_ID", "USER")
+    cfg = _cfg(
+        tmp_path,
+        rules=[{"name": "price", "keywords": ["preço"], "reply": "DM enviada @{name}!", "dm": "R$120"}],
+    )
+    # c1 "oi" -> default template; c2 rewritten to trigger the price rule.
+    client = ScriptedClient(
+        [{"data": [{"id": "MEDIA", "permalink": ".../reel/Dac_XkRBKzo/"}]}],
+        [{"data": [
+            {"id": "c1", "text": "oi", "username": "ana", "timestamp": "t1"},
+            {"id": "c2", "text": "qual o preço?", "username": "bia", "timestamp": "t2"},
+        ]}],
+    )
+    result = run(cfg, dry_run=False, client=client)
+    assert result.sent_count == 2
+    assert result.dm_count == 1
+    assert client.dms == [("USER/messages", "R$120")]
+    priced = next(a for a in result.actions if a.comment.id == "c2")
+    assert priced.plan.rule_name == "price"
+
+
+def test_run_auto_discover_covers_all_posts(tmp_path, monkeypatch):
+    monkeypatch.setenv("INSTAGRAM_ACCESS_TOKEN", "T")
+    monkeypatch.setenv("INSTAGRAM_USER_ID", "USER")
+    cfg = _cfg(tmp_path, post_url=None, auto_discover=True)
+    client = ScriptedClient(
+        [{"data": [{"id": "M1", "permalink": "p1"}, {"id": "M2", "permalink": "p2"}]}],
+        [
+            {"data": [{"id": "a1", "text": "hi", "username": "x", "timestamp": "t"}]},
+            {"data": [{"id": "b1", "text": "yo", "username": "y", "timestamp": "t"}]},
+        ],
+    )
+    result = run(cfg, dry_run=True, client=client)
+    assert len(result.targets) == 2
+    assert result.total_comments == 2
+    assert {a.media_id for a in result.actions} == {"M1", "M2"}
