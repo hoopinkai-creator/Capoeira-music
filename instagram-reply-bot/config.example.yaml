@@ -1,0 +1,29 @@
+# Instagram reply-bot configuration.
+# Copy to config.yaml and edit. Secrets are NOT here — they come from the
+# environment (see README): INSTAGRAM_ACCESS_TOKEN, INSTAGRAM_USER_ID.
+
+# The reel/post to manage. The bot resolves this to a media id by matching it
+# against the media owned by INSTAGRAM_USER_ID.
+post_url: "https://www.instagram.com/reel/Dac_XkRBKzo/"
+
+# Optional: set this to skip the media lookup entirely (faster, and works even
+# if the /media listing is paginated far back). Leave null to auto-resolve.
+media_id: null
+
+graph_api_version: "v21.0"
+
+# How replies are written:
+#   template -> fill reply_template with {name} and {text}
+#   ai       -> ask an Anthropic model (needs the [ai] extra + ANTHROPIC_API_KEY)
+reply_mode: "template"
+reply_template: "Axé! 🙏 Obrigado pelo comentário, @{name}!"
+
+# Only used when reply_mode: ai
+ai_model: "claude-opus-4-8"
+ai_system_prompt: null   # null = use the built-in warm, one-sentence persona
+
+# Where the "already replied" ledger is kept (so re-runs don't double-reply).
+state_file: "instagram_replies.json"
+
+# Skip comments made by your own account (set INSTAGRAM_USERNAME to enable).
+skip_own_comments: true
