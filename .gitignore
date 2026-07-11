@@ -7,6 +7,9 @@ recordings/**/*.aac
 recordings/**/*.caf
 recordings/**/*.mp4
 recordings/**/*.m4v
+recordings-talk/
+**/*.m4a
+**/*.mp3
 **/*.wav
 
 # Trained models & labeled calibration clips
