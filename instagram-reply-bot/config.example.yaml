@@ -1,0 +1,48 @@
+# Instagram reply-bot configuration.
+# Copy to config.yaml and edit. Secrets are NOT here — they come from the
+# environment (see README): INSTAGRAM_ACCESS_TOKEN, INSTAGRAM_USER_ID.
+
+# --- What to reply on (pick ONE) ---------------------------------------------
+# A single reel/post:
+post_url: "https://www.instagram.com/reel/Dac_XkRBKzo/"
+
+# ...or several posts:
+# posts:
+#   - "https://www.instagram.com/reel/Dac_XkRBKzo/"
+#   - "https://www.instagram.com/p/AnotherPost/"
+
+# ...or EVERY post on the account (ManyChat "all posts" behaviour):
+# auto_discover: true
+# max_posts: 25            # cap how far back to scan (null = all)
+
+# Optional: reply on a raw media id (skips the URL->id lookup entirely).
+# media_id: null
+
+graph_api_version: "v21.0"
+
+# --- Default reply (used when no keyword rule below matches) ------------------
+reply_mode: "template"     # template | ai
+reply_template: "Axé! 🙏 Obrigado pelo comentário, @{name}!"
+ai_model: "claude-opus-4-8"     # only used when reply_mode: ai
+ai_system_prompt: null          # null = built-in warm, one-sentence persona
+
+# --- ManyChat-style keyword rules --------------------------------------------
+# First rule whose keyword appears in the comment wins. Each can post a public
+# reply and (optionally) send a DM — like ManyChat's "comment -> DM" flows.
+# {name} and {text} are filled in. match: substring (default) | word | exact.
+rules:
+  - name: pricing
+    keywords: ["price", "preço", "quanto custa", "valor"]
+    reply: "Oi @{name}! Acabei de te mandar os valores no direct 🙌"
+    dm: "Thanks for your interest! Classes are R$120/month. Reply here to sign up 🥋"
+  - name: link
+    keywords: ["link", "sign up", "aula", "class"]
+    reply: "Mandei o link no seu direct, @{name}! 🔗"
+    dm: "Here's the sign-up link: https://example.com/capoeira"
+
+only_rules: false          # true = stay silent on comments that match no rule
+send_dm: true              # send rule DMs (needs instagram_manage_messages perm)
+
+# --- Bookkeeping -------------------------------------------------------------
+state_file: "instagram_replies.json"   # ledger so re-runs don't double-reply
+skip_own_comments: true                # needs INSTAGRAM_USERNAME to identify you

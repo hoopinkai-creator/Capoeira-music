@@ -1,0 +1,60 @@
+# Scheduled Instagram comment replies.
+#
+# Runs the bot on a cron and posts replies to new comments. Add these repo
+# secrets (Settings -> Secrets and variables -> Actions):
+#   INSTAGRAM_ACCESS_TOKEN, INSTAGRAM_USER_ID
+#   ANTHROPIC_API_KEY   (only if you set reply_mode: ai)
+#
+# The reply ledger (instagram_replies.json) is cached between runs so the bot
+# never double-replies. Commit a config.yaml to the instagram-reply-bot/ folder
+# (or adjust the working-directory / --config path below).
+name: instagram-reply-bot
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # every 30 minutes
+  workflow_dispatch:
+    inputs:
+      send:
+        description: "Actually post replies (otherwise dry-run)"
+        type: boolean
+        default: false
+
+defaults:
+  run:
+    working-directory: instagram-reply-bot
+
+jobs:
+  reply:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: instagram-reply-bot   # never run two at once
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: python -m pip install -e '.[ai]'
+
+      - name: Restore reply ledger
+        uses: actions/cache@v4
+        with:
+          path: instagram-reply-bot/instagram_replies.json
+          key: ig-reply-ledger-${{ github.run_id }}
+          restore-keys: ig-reply-ledger-
+
+      - name: Reply to new comments
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.send }}" = "true" ]; then
+            ig-reply-bot reply --send
+          else
+            ig-reply-bot reply   # manual dispatch defaults to a dry run
+          fi
